@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/consoleFragment">
+
+    <fragment
+        android:id="@+id/consoleFragment"
+        android:name="com.aurashield.app.ui.console.ConsoleFragment"
+        android:label="Console"
+        tools:layout="@layout/fragment_console" />
+
+    <fragment
+        android:id="@+id/liveMonitorFragment"
+        android:name="com.aurashield.app.ui.livemonitor.LiveMonitorFragment"
+        android:label="Live Monitor"
+        tools:layout="@layout/fragment_live_monitor" />
+
+    <fragment
+        android:id="@+id/systemLockFragment"
+        android:name="com.aurashield.app.ui.systemlock.SystemLockFragment"
+        android:label="System Lock"
+        tools:layout="@layout/layout_emergency_lock" />
+
+    <fragment
+        android:id="@+id/riskLogFragment"
+        android:name="com.aurashield.app.ui.risklog.RiskLogFragment"
+        android:label="Risk Log"
+        tools:layout="@layout/fragment_risk_log" />
+
+</navigation>

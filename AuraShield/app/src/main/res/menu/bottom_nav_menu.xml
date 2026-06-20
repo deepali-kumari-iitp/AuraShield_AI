@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/consoleFragment"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_console" />
+    <item
+        android:id="@+id/liveMonitorFragment"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/nav_live_monitor" />
+    <item
+        android:id="@+id/systemLockFragment"
+        android:icon="@drawable/ic_info"
+        android:title="@string/nav_system_lock" />
+    <item
+        android:id="@+id/riskLogFragment"
+        android:icon="@drawable/ic_list"
+        android:title="@string/nav_risk_log" />
+</menu>

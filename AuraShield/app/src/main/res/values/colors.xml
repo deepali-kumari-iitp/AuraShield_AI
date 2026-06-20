@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base surfaces -->
+    <color name="bg_void">#06080F</color>
+    <color name="bg_base">#0A0E17</color>
+    <color name="bg_surface">#10151F</color>
+    <color name="bg_surface_raised">#161D2B</color>
+    <color name="bg_stroke">#232B3D</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F4F6FB</color>
+    <color name="text_secondary">#8C97AD</color>
+    <color name="text_tertiary">#5C6680</color>
+
+    <!-- Brand: Aura mint (protected / safe / active) -->
+    <color name="aura_mint">#22E6B0</color>
+    <color name="aura_mint_dim">#1B6E5A</color>
+    <color name="aura_mint_glow">#3322E6B0</color>
+
+    <!-- Alert: clone signal red -->
+    <color name="signal_red">#FF5C72</color>
+    <color name="signal_red_dim">#7A2430</color>
+    <color name="signal_red_glow">#33FF5C72</color>
+
+    <!-- Warning amber -->
+    <color name="signal_amber">#FFB454</color>
+    <color name="signal_amber_dim">#7A5A23</color>
+
+    <!-- Accent violet, used for AI/ML cues -->
+    <color name="accent_violet">#8C7CFF</color>
+    <color name="accent_violet_dim">#3A3470</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>
