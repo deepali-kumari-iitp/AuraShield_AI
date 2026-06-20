@@ -69,6 +69,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     
+    // Biometric Security Prompt
+    implementation(libs.androidx.biometric.ktx)
+    
     // AI/ML Runtimes
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)

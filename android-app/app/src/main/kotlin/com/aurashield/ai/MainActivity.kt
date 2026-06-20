@@ -10,7 +10,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
+import com.aurashield.ai.security.BiometricAuthManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -47,7 +48,7 @@ import kotlinx.coroutines.isActive
 import java.util.Locale
 import kotlin.math.sin
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -726,9 +727,16 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(36.dp))
 
             // Action override buttons
+            val activity = context as? FragmentActivity
             Button(
                 onClick = {
-                    Toast.makeText(context, "Requesting Local System Biometrics...", Toast.LENGTH_SHORT).show()
+                    if (activity != null) {
+                        BiometricAuthManager.showBiometricPrompt(activity) {
+                            Toast.makeText(context, "Biometric Verification Succeeded! Override Approved.", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Requesting Local System Biometrics...", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
