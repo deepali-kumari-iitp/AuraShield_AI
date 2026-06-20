@@ -19,3 +19,11 @@ local.properties
 # OS files
 .DS_Store
 Thumbs.db
+
+
+# Completed AI backend and TFLite model integration
+
+venv/
+dataset/
+spectrograms/
+*.h5
