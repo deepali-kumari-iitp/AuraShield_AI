@@ -202,7 +202,27 @@ class BackgroundMonitorService : Service() {
                 val callActive = isCallActive(this@BackgroundMonitorService)
                 
                 if (callActive) {
-                    if (tfliteInterpreter != null) {
+                    val hasPhoneStatePermission = ContextCompat.checkSelfPermission(this@BackgroundMonitorService, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+                    val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                    val isCellularCallActive = if (hasPhoneStatePermission && telephonyManager != null) {
+                        @Suppress("DEPRECATION")
+                        telephonyManager.callState == TelephonyManager.CALL_STATE_OFFHOOK || 
+                        telephonyManager.callState == TelephonyManager.CALL_STATE_RINGING
+                    } else {
+                        false
+                    }
+
+                    if (isCellularCallActive) {
+                        tickCount++
+                        if (isSimulatedAttackActive) {
+                            riskPercentage = 95f
+                            isProcessingAudioBytes = true
+                        } else {
+                            riskPercentage = 0f
+                            isProcessingAudioBytes = false
+                            tickCount = 0
+                        }
+                    } else if (tfliteInterpreter != null) {
                         try {
                             tickCount++
                             
@@ -226,25 +246,25 @@ class BackgroundMonitorService : Service() {
                             } else {
                                 0f
                             }
-                            
-                            // Check foreground app
-                            val foregroundApp = getForegroundPackageName(this@BackgroundMonitorService)
-                            Log.i(TAG, "Call active. Ticks: $tickCount, Prob of real: $finalRealProb, Risk: $riskPercentage%, Foreground: $foregroundApp")
-                            
-                            // Overlay trigger conditions
-                            val isForegroundAppTarget = foregroundApp != null && targetFinancialApps.contains(foregroundApp)
-                            
-                            if (riskPercentage >= 80f && isForegroundAppTarget && !isThreatBypassed) {
-                                Log.w(TAG, "CRITICAL THREAT DETECTED! Risk is $riskPercentage% and financial app $foregroundApp is in foreground. Displaying overlay.")
-                                withContext(Dispatchers.Main) {
-                                    showOverlay()
-                                }
-                            }
                         } catch (e: Exception) {
                             Log.e(TAG, "Inference execution error: ${e.message}", e)
                         }
                     } else {
                         Log.w(TAG, "TFLite interpreter not initialized.")
+                    }
+
+                    // Check foreground app
+                    val foregroundApp = getForegroundPackageName(this@BackgroundMonitorService)
+                    Log.i(TAG, "Call active. Ticks: $tickCount, Risk: $riskPercentage%, Foreground: $foregroundApp, Cellular: $isCellularCallActive")
+                    
+                    // Overlay trigger conditions
+                    val isForegroundAppTarget = foregroundApp != null && targetFinancialApps.contains(foregroundApp)
+                    
+                    if (riskPercentage >= 80f && isForegroundAppTarget && !isThreatBypassed) {
+                        Log.w(TAG, "CRITICAL THREAT DETECTED! Risk is $riskPercentage% and financial app $foregroundApp is in foreground. Displaying overlay.")
+                        withContext(Dispatchers.Main) {
+                            showOverlay()
+                        }
                     }
                 } else {
                     // Reset threat state when no call is active
@@ -364,5 +384,6 @@ class BackgroundMonitorService : Service() {
         const val EXTRA_CALL_ACTIVE = "com.aurashield.ai.extra.CALL_ACTIVE"
         
         var isSimulatedCallActive = false
+        var isSimulatedAttackActive = false
     }
 }

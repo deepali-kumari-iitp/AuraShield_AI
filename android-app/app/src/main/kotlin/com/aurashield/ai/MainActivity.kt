@@ -486,6 +486,47 @@ class MainActivity : FragmentActivity() {
                     RegistryItem(name = "Paytm", checked = paytmMonitored, onCheckedChange = { paytmMonitored = it })
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            var isAttackSimulated by remember { mutableStateOf(BackgroundMonitorService.isSimulatedAttackActive) }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1F2336))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Simulate Voice Attack Trigger", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                        Text(
+                            "Forces 95% threat risk during an active cellular call.",
+                            fontSize = 11.sp,
+                            color = Color(0xFFE2E8F0).copy(alpha = 0.5f),
+                            lineHeight = 14.sp
+                        )
+                    }
+                    Switch(
+                        checked = isAttackSimulated,
+                        onCheckedChange = { checked ->
+                            isAttackSimulated = checked
+                            BackgroundMonitorService.isSimulatedAttackActive = checked
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color(0xFFFF6B6B),
+                            checkedTrackColor = Color(0xFFFF6B6B).copy(alpha = 0.5f),
+                            uncheckedThumbColor = Color.Gray,
+                            uncheckedTrackColor = Color.Gray.copy(alpha = 0.5f)
+                        )
+                    )
+                }
+            }
         }
     }
 
