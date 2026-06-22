@@ -1,4 +1,4 @@
-package com.aurashield.app.ui.systemlock
+package com.aurashield.ai.ui.systemlock
 
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -10,7 +10,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.aurashield.app.databinding.LayoutEmergencyLockBinding
+import com.aurashield.ai.databinding.LayoutEmergencyLockBinding
 import java.util.Locale
 
 class SystemLockFragment : Fragment() {

@@ -18,6 +18,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8000/\"")
     }
 
     buildTypes {
@@ -41,6 +42,8 @@ android {
     
     buildFeatures {
         compose = true
+        viewBinding = true
+        buildConfig = true
     }
     
     composeOptions {
@@ -82,6 +85,18 @@ dependencies {
     // Asynchronous processing
     implementation(libs.kotlinx.coroutines.android)
 
+    // Layouts and Navigation
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // Networking
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -91,5 +106,4 @@ dependencies {
     
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    
 }

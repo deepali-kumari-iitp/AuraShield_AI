@@ -1,4 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AuraShield AI</string>
+
+    <!-- Console -->
+    <string name="status_protected">YOU ARE PROTECTED</string>
+    <string name="protection_score_label">Protection Score</string>
+    <string name="aura_shield_active">AuraShield Active</string>
+    <string name="aura_shield_subtitle">Real-time voice clone defense is running</string>
+    <string name="registry_title">Protected Financial Apps Registry</string>
+    <string name="registry_subtitle">Securing transactions during outgoing/incoming phone sessions.</string>
+
+    <!-- Live monitor -->
+    <string name="active_scanning_mode">ACTIVE SCANNING MODE</string>
+    <string name="analyzing_stream">Analyzing Incoming Stream</string>
+    <string name="local_inference_stats">Local Inference Statistics</string>
+    <string name="inference_latency">Local Inference Latency</string>
+    <string name="voice_buffer_window">Voice Buffer Window</string>
+    <string name="model_footprint">Model Footprint</string>
+
+    <!-- System lock -->
+    <string name="system_intercepted">SYSTEM INTERCEPTED</string>
+    <string name="lockdown_message">A suspected clone voice stream matched banking social engineering heuristics. Critical financial transactions have been overlay locked.</string>
+    <string name="lockout_countdown">LOCKOUT COUNTDOWN</string>
+    <string name="verify_biometric">Verify via Biometric Override</string>
+
+    <!-- Risk log -->
+    <string name="forensic_history_log">Forensic History Log</string>
+    <string name="forensic_subtitle">Analysis records of call voice sessions.</string>
+    <string name="mel_spectrogram_layer">Analyzed Mel-Spectrogram Layer</string>
+    <string name="classification_label">Classification</string>
+    <string name="forensic_details_label">Forensic Details Log</string>
+
+    <!-- Nav -->
+    <string name="nav_console">Console</string>
+    <string name="nav_live_monitor">Live Monitor</string>
+    <string name="nav_system_lock">System Lock</string>
+    <string name="nav_risk_log">Risk Log</string>
 </resources>

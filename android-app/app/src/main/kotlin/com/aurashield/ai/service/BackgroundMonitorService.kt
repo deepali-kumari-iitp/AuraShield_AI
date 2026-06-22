@@ -34,8 +34,10 @@ class BackgroundMonitorService : Service() {
     private var isRunning = false
     private var tfliteInterpreter: Interpreter? = null
     private var isThreatBypassed = false
+    var isCoolingOffActive = false
     private var isCallAnalysisEngineActive = true
     private var isProcessingAudioBytes = false
+    private var overlayCountDownTimer: android.os.CountDownTimer? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -53,6 +55,11 @@ class BackgroundMonitorService : Service() {
         if (intent?.action == ACTION_DISMISS_OVERLAY) {
             isThreatBypassed = true
             hideOverlay()
+            serviceScope.launch {
+                isCoolingOffActive = true
+                delay(30000L)
+                isCoolingOffActive = false
+            }
             return START_STICKY
         }
 
@@ -177,6 +184,42 @@ class BackgroundMonitorService : Service() {
         return sortedStats.firstOrNull()?.packageName
     }
 
+    private fun fetchLastIncomingCallNumber(context: Context): String? {
+        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            return null
+        }
+        val contentResolver = context.contentResolver
+        val projection = arrayOf(
+            android.provider.CallLog.Calls.NUMBER,
+            android.provider.CallLog.Calls.TYPE,
+            android.provider.CallLog.Calls.DATE
+        )
+        val selection = "${android.provider.CallLog.Calls.TYPE} = ?"
+        val selectionArgs = arrayOf(android.provider.CallLog.Calls.INCOMING_TYPE.toString())
+        val sortOrder = "${android.provider.CallLog.Calls.DATE} DESC"
+        
+        var number: String? = null
+        try {
+            contentResolver.query(
+                android.provider.CallLog.Calls.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val numberIndex = cursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER)
+                    if (numberIndex != -1) {
+                        number = cursor.getString(numberIndex)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error querying CallLog: ${e.message}", e)
+        }
+        return number
+    }
+
     private fun startMonitoringLoop() {
         initInterpreter()
         
@@ -198,11 +241,45 @@ class BackgroundMonitorService : Service() {
                 "net.one97.paytm"                         // Paytm
             )
             
+            var wasCallActive = false
+            var currentRecord: com.aurashield.ai.data.ForensicCallRecord? = null
+            var currentCallNumber = "Unknown Number"
+            
             while (isActive) {
                 val callActive = isCallActive(this@BackgroundMonitorService)
                 
                 if (callActive) {
-                    if (tfliteInterpreter != null) {
+                    val hasPhoneStatePermission = ContextCompat.checkSelfPermission(this@BackgroundMonitorService, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+                    val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                    val isCellularCallActive = if (hasPhoneStatePermission && telephonyManager != null) {
+                        @Suppress("DEPRECATION")
+                        telephonyManager.callState == TelephonyManager.CALL_STATE_OFFHOOK || 
+                        telephonyManager.callState == TelephonyManager.CALL_STATE_RINGING
+                    } else {
+                        false
+                    }
+
+                    if (!wasCallActive) {
+                        wasCallActive = true
+                        currentCallNumber = if (isSimulatedCallActive && !isCellularCallActive) {
+                            "+1 (555) 000-TEST"
+                        } else {
+                            fetchLastIncomingCallNumber(this@BackgroundMonitorService) ?: "Unknown Number"
+                        }
+                        currentRecord = null
+                    }
+
+                    if (isCellularCallActive) {
+                        tickCount++
+                        if (isSimulatedAttackActive) {
+                            riskPercentage = 95f
+                            isProcessingAudioBytes = true
+                        } else {
+                            riskPercentage = 0f
+                            isProcessingAudioBytes = false
+                            tickCount = 0
+                        }
+                    } else if (tfliteInterpreter != null) {
                         try {
                             tickCount++
                             
@@ -226,27 +303,61 @@ class BackgroundMonitorService : Service() {
                             } else {
                                 0f
                             }
-                            
-                            // Check foreground app
-                            val foregroundApp = getForegroundPackageName(this@BackgroundMonitorService)
-                            Log.i(TAG, "Call active. Ticks: $tickCount, Prob of real: $finalRealProb, Risk: $riskPercentage%, Foreground: $foregroundApp")
-                            
-                            // Overlay trigger conditions
-                            val isForegroundAppTarget = foregroundApp != null && targetFinancialApps.contains(foregroundApp)
-                            
-                            if (riskPercentage >= 80f && isForegroundAppTarget && !isThreatBypassed) {
-                                Log.w(TAG, "CRITICAL THREAT DETECTED! Risk is $riskPercentage% and financial app $foregroundApp is in foreground. Displaying overlay.")
-                                withContext(Dispatchers.Main) {
-                                    showOverlay()
-                                }
-                            }
                         } catch (e: Exception) {
                             Log.e(TAG, "Inference execution error: ${e.message}", e)
                         }
                     } else {
                         Log.w(TAG, "TFLite interpreter not initialized.")
                     }
+
+                    // Bind call details and append/update record in registry
+                    val isHighRisk = riskPercentage >= 80f
+                    if (currentRecord == null) {
+                        val newRecord = com.aurashield.ai.data.ForensicCallRecord(
+                            id = java.util.UUID.randomUUID().toString(),
+                            phoneNumber = currentCallNumber,
+                            timestampString = "Just now",
+                            riskPercentage = riskPercentage,
+                            isAiClone = isHighRisk,
+                            details = "Analyzing voice stream..."
+                        )
+                        currentRecord = newRecord
+                        com.aurashield.ai.data.HistoryRegistry.records.add(0, newRecord)
+                    } else {
+                        val updated = currentRecord.copy(
+                            riskPercentage = riskPercentage,
+                            isAiClone = isHighRisk,
+                            details = if (isHighRisk) {
+                                "Deepfake anomaly identified. Formant shifts match cloned model pattern."
+                            } else if (riskPercentage >= 30f) {
+                                "Suspect pitch variance detected. Voice features altered."
+                            } else {
+                                "Acoustics matching authenticated signature."
+                            }
+                        )
+                        val index = com.aurashield.ai.data.HistoryRegistry.records.indexOf(currentRecord)
+                        if (index != -1) {
+                            com.aurashield.ai.data.HistoryRegistry.records[index] = updated
+                            currentRecord = updated
+                        }
+                    }
+
+                    // Check foreground app
+                    val foregroundApp = getForegroundPackageName(this@BackgroundMonitorService)
+                    Log.i(TAG, "Call active. Ticks: $tickCount, Risk: $riskPercentage%, Foreground: $foregroundApp, Cellular: $isCellularCallActive")
+                    
+                    // Overlay trigger conditions
+                    val isForegroundAppTarget = foregroundApp != null && targetFinancialApps.contains(foregroundApp)
+                    
+                    if (isForegroundAppTarget && !isCoolingOffActive && isSimulatedAttackActive) {
+                        Log.w(TAG, "CRITICAL THREAT DETECTED! Risk is $riskPercentage% and financial app $foregroundApp is in foreground. Displaying overlay.")
+                        withContext(Dispatchers.Main) {
+                            showOverlay()
+                        }
+                    }
                 } else {
+                    wasCallActive = false
+                    currentRecord = null
                     // Reset threat state when no call is active
                     if (tickCount > 0 || riskPercentage > 0f || isProcessingAudioBytes) {
                         Log.d(TAG, "No call active. Resetting call threat states to safe values.")
@@ -284,13 +395,34 @@ class BackgroundMonitorService : Service() {
                 format = android.graphics.PixelFormat.TRANSLUCENT
             }
 
-            val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            overlayView = inflater.inflate(R.layout.layout_emergency_lock, null)
+            val contextThemeWrapper = android.view.ContextThemeWrapper(this, R.style.Theme_AuraShieldAI)
+            val inflater = LayoutInflater.from(contextThemeWrapper)
+            overlayView = inflater.inflate(R.layout.layout_floating_popup_overlay, null)
 
-            // Bind overlay dismiss button
-            overlayView?.findViewById<Button>(R.id.btnDismissLock)?.setOnClickListener {
-                hideOverlay()
+            // Bind biometric override button to launch MainActivity for biometric prompts
+            overlayView?.findViewById<android.view.View>(R.id.btnBiometricOverride)?.setOnClickListener {
+                val intent = Intent(this@BackgroundMonitorService, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    putExtra("LAUNCH_BIOMETRIC", true)
+                }
+                startActivity(intent)
             }
+
+            // Bind countdown timer
+            val timerTextView = overlayView?.findViewById<android.widget.TextView>(R.id.countdownTimer)
+            overlayCountDownTimer?.cancel()
+            overlayCountDownTimer = object : android.os.CountDownTimer(900000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    val minutes = (millisUntilFinished / 1000) / 60
+                    val seconds = (millisUntilFinished / 1000) % 60
+                    val timeStr = String.format(java.util.Locale.US, "%02d:%02d", minutes, seconds)
+                    timerTextView?.text = timeStr
+                }
+
+                override fun onFinish() {
+                    timerTextView?.text = "00:00"
+                }
+            }.start()
 
             windowManager?.addView(overlayView, layoutParams)
             Log.d(TAG, "Emergency lockdown overlay added to WindowManager")
@@ -301,6 +433,8 @@ class BackgroundMonitorService : Service() {
 
     private fun hideOverlay() {
         try {
+            overlayCountDownTimer?.cancel()
+            overlayCountDownTimer = null
             if (overlayView != null && windowManager != null) {
                 windowManager?.removeView(overlayView)
                 overlayView = null
@@ -364,5 +498,6 @@ class BackgroundMonitorService : Service() {
         const val EXTRA_CALL_ACTIVE = "com.aurashield.ai.extra.CALL_ACTIVE"
         
         var isSimulatedCallActive = false
+        var isSimulatedAttackActive = false
     }
 }

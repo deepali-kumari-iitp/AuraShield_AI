@@ -48,7 +48,14 @@ import kotlinx.coroutines.isActive
 import java.util.Locale
 import kotlin.math.sin
 
+import android.view.LayoutInflater
+import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
 class MainActivity : FragmentActivity() {
+
+    private var isBiometricMode by mutableStateOf(false)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -66,14 +73,81 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private val requestCallLogPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(this, "Call Log permission granted", Toast.LENGTH_SHORT).show()
+            com.aurashield.ai.data.HistoryRegistry.loadCallLogRecords(this)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        isBiometricMode = intent?.getBooleanExtra("LAUNCH_BIOMETRIC", false) == true
+        if (isBiometricMode) {
+            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
         checkAndRequestPermissions()
+        handleBiometricIntent(intent)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
+            com.aurashield.ai.data.HistoryRegistry.loadCallLogRecords(this)
+        }
 
         setContent {
             AuraShieldTheme {
-                MainNavigationFrame()
+                if (isBiometricMode) {
+                    Spacer(modifier = Modifier.fillMaxSize())
+                } else {
+                    androidx.compose.ui.viewinterop.AndroidView(
+                        factory = { context ->
+                            val view = LayoutInflater.from(context).inflate(R.layout.activity_main, null)
+                            
+                            view.post {
+                                try {
+                                    val navHostFragment = supportFragmentManager
+                                        .findFragmentById(R.id.navHostFragment) as? NavHostFragment
+                                    if (navHostFragment != null) {
+                                        val bottomNav = view.findViewById<BottomNavigationView>(R.id.bottomNav)
+                                        bottomNav?.setupWithNavController(navHostFragment.navController)
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            
+                            view
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        isBiometricMode = intent?.getBooleanExtra("LAUNCH_BIOMETRIC", false) == true
+        if (isBiometricMode) {
+            window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+        handleBiometricIntent(intent)
+    }
+
+    private fun handleBiometricIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra("LAUNCH_BIOMETRIC", false) == true) {
+            BiometricAuthManager.showBiometricPrompt(this) {
+                val dismissIntent = Intent(this, BackgroundMonitorService::class.java).apply {
+                    action = BackgroundMonitorService.ACTION_DISMISS_OVERLAY
+                }
+                startService(dismissIntent)
+                Toast.makeText(this, "Bypass Auth Approved!", Toast.LENGTH_SHORT).show()
+                isBiometricMode = false
+                moveTaskToBack(true)
             }
         }
     }
@@ -94,6 +168,25 @@ class MainActivity : FragmentActivity() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPhoneStatePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+        }
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_CALL_LOG
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestCallLogPermissionLauncher.launch(Manifest.permission.READ_CALL_LOG)
+        }
+        
+        // System Overlay Permission check and intent redirection
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivity(intent)
+                Toast.makeText(this, "AuraShield AI requires overlay permissions to protect financial transactions.", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -486,6 +579,47 @@ class MainActivity : FragmentActivity() {
                     RegistryItem(name = "Paytm", checked = paytmMonitored, onCheckedChange = { paytmMonitored = it })
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            var isAttackSimulated by remember { mutableStateOf(BackgroundMonitorService.isSimulatedAttackActive) }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1F2336))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Simulate Voice Attack Trigger", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                        Text(
+                            "Forces 95% threat risk during an active cellular call.",
+                            fontSize = 11.sp,
+                            color = Color(0xFFE2E8F0).copy(alpha = 0.5f),
+                            lineHeight = 14.sp
+                        )
+                    }
+                    Switch(
+                        checked = isAttackSimulated,
+                        onCheckedChange = { checked ->
+                            isAttackSimulated = checked
+                            BackgroundMonitorService.isSimulatedAttackActive = checked
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color(0xFFFF6B6B),
+                            checkedTrackColor = Color(0xFFFF6B6B).copy(alpha = 0.5f),
+                            uncheckedThumbColor = Color.Gray,
+                            uncheckedTrackColor = Color.Gray.copy(alpha = 0.5f)
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -852,25 +986,13 @@ class MainActivity : FragmentActivity() {
     }
 
     // 5. ForensicHistoryScreen
-    data class ThreatLog(
-        val phone: String,
-        val risk: Int,
-        val timestamp: String,
-        val details: String,
-        val classification: String
-    )
-
     @Composable
     fun ForensicHistoryScreen() {
-        val mockLogs = remember {
-            listOf(
-                ThreatLog("+1 (555) 019-2834", 92, "10 mins ago", "Deepfake anomaly identified. Formant shifts match cloned model pattern.", "AI Voice Clone"),
-                ThreatLog("+1 (555) 048-1920", 45, "1 hour ago", "Suspect pitch variance detected. Voice features altered.", "Pitch Variance"),
-                ThreatLog("+1 (555) 012-7384", 2, "3 hours ago", "Acoustics matching authenticated signature.", "Safe Contact"),
-                ThreatLog("+1 (555) 089-3829", 95, "Yesterday", "Financial request keywords mapping deepfake model payload.", "AI Clone / Scammer")
-            )
+        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            com.aurashield.ai.data.HistoryRegistry.loadCallLogRecords(context)
         }
-
+        val records = com.aurashield.ai.data.HistoryRegistry.records
         var expandedIndex by remember { mutableStateOf(-1) }
 
         Column(
@@ -891,7 +1013,7 @@ class MainActivity : FragmentActivity() {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                itemsIndexed(mockLogs) { index, log ->
+                itemsIndexed(records) { index, log ->
                     ForensicLogCard(
                         log = log,
                         expanded = index == expandedIndex,
@@ -906,13 +1028,13 @@ class MainActivity : FragmentActivity() {
 
     @Composable
     fun ForensicLogCard(
-        log: ThreatLog,
+        log: com.aurashield.ai.data.ForensicCallRecord,
         expanded: Boolean,
         onToggle: () -> Unit
     ) {
         val riskColor = when {
-            log.risk >= 80 -> Color(0xFFFF6B6B)
-            log.risk >= 30 -> Color(0xFFFF9800)
+            log.riskPercentage >= 80f -> Color(0xFFFF6B6B)
+            log.riskPercentage >= 30f -> Color(0xFFFF9800)
             else -> Color(0xFF00C896)
         }
 
@@ -930,8 +1052,8 @@ class MainActivity : FragmentActivity() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(log.phone, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
-                        Text(log.timestamp, fontSize = 11.sp, color = Color(0xFFE2E8F0).copy(alpha = 0.5f))
+                        Text(log.phoneNumber, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                        Text(log.timestampString, fontSize = 11.sp, color = Color(0xFFE2E8F0).copy(alpha = 0.5f))
                     }
                     Box(
                         modifier = Modifier
@@ -939,7 +1061,7 @@ class MainActivity : FragmentActivity() {
                             .border(1.dp, riskColor, RoundedCornerShape(8.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("${log.risk}% RISK", color = riskColor, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        Text("${log.riskPercentage.toInt()}% RISK", color = riskColor, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                     }
                 }
 
@@ -983,7 +1105,8 @@ class MainActivity : FragmentActivity() {
                     Spacer(modifier = Modifier.height(14.dp))
 
                     Text("Classification", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.5f))
-                    Text(log.classification, color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                    val classification = if (log.isAiClone) "AI Voice Clone" else if (log.riskPercentage >= 30f) "Pitch Variance" else "Safe Contact"
+                    Text(classification, color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
 
                     Spacer(modifier = Modifier.height(10.dp))
 

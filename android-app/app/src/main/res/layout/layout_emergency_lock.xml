@@ -3,77 +3,134 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E60B0F26"
-    android:clickable="true"
-    android:focusable="true">
+    android:paddingHorizontal="28dp">
 
-    <!-- Center Warning Console Card -->
+    <View
+        android:id="@+id/lockRing"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/bg_lock_ring"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/lockIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_lock"
+        app:tint="@color/signal_red"
+        app:layout_constraintBottom_toBottomOf="@id/lockRing"
+        app:layout_constraintEnd_toEndOf="@id/lockRing"
+        app:layout_constraintStart_toStartOf="@id/lockRing"
+        app:layout_constraintTop_toTopOf="@id/lockRing" />
+
     <LinearLayout
-        android:id="@+id/cardEmergency"
+        android:id="@+id/interceptedRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lockRing">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_lock_small"
+            app:tint="@color/signal_red" />
+
+        <TextView
+            android:id="@+id/interceptedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.04"
+            android:text="@string/system_intercepted"
+            android:textColor="@color/signal_red"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/lockMessage"
+        style="@style/Text.Body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:text="@string/lockdown_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/interceptedRow" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/countdownCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:background="@drawable/bg_metrics_card"
-        android:orientation="vertical"
-        android:padding="28dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_countdown_card"
+        android:paddingVertical="20dp"
+        app:layout_constraintTop_toBottomOf="@id/lockMessage">
+
+        <TextView
+            android:id="@+id/countdownLabel"
+            style="@style/Text.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lockout_countdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/countdownTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="monospace"
+            android:text="15:00"
+            android:textColor="@color/text_primary"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/countdownLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/biometricButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/bg_button_danger"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:orientation="horizontal"
+        android:paddingVertical="16dp"
+        app:layout_constraintTop_toBottomOf="@id/countdownCard">
 
-        <!-- Critical Threat Icon (system warning indicator) -->
         <ImageView
-            android:id="@+id/ivWarningIcon"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@android:drawable/stat_sys_warning"
-            app:tint="@color/neon_coral"
-            android:contentDescription="Emergency Warning" />
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_fingerprint"
+            app:tint="@color/white" />
 
-        <!-- Warning Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="EMERGENCY LOCKDOWN"
-            android:textColor="@color/neon_coral"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp" />
-
-        <!-- Subtitle warning state -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AuraShield AI Edge Intervention"
+            android:text="@string/verify_biometric"
             android:textColor="@color/white"
-            android:textSize="12sp"
-            android:alpha="0.7"
-            android:textStyle="bold"
-            android:layout_marginTop="4dp" />
-
-        <!-- Threat Details Description text -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="A critical voice stream threat or local execution anomaly was intercepted. Security protocols have locked the system overlay layer to block unauthorized data synchronization."
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:lineSpacingExtra="4dp" />
-
-        <!-- Action button to dismiss lock screen overlay -->
-        <Button
-            android:id="@+id/btnDismissLock"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:backgroundTint="@color/neon_coral"
-            android:text="Dismiss Overlay"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:layout_marginTop="28dp" />
-
+            android:textSize="15sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

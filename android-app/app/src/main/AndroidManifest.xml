@@ -21,6 +21,9 @@
     <!-- Phone State Permission to track actual phone calls -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- Call Log Permission to query last incoming call number -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
     <!-- Package Queries to verify installation of target financial apps -->
     <queries>
         <package android:name="com.google.android.apps.nbu.paisa.user" /> <!-- GPay -->

@@ -3,238 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/midnight_navy"
-    android:padding="24dp">
+    android:background="@drawable/bg_app_gradient">
 
-    <!-- Top Header -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="AuraShield AI"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navHostFragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav" />
 
-    <LinearLayout
-        android:id="@+id/layoutStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <View
-            android:id="@+id/viewStatusDot"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:background="@color/mint_green"
-            android:layout_marginEnd="6dp" />
-
-        <TextView
-            android:id="@+id/tvStatusText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Live Edge Protection Active"
-            android:textColor="@color/mint_green"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Central Glowing Shield Button Section with Frosted Glassmorphism Background -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutShieldContainer"
-        android:layout_width="260dp"
-        android:layout_height="260dp"
-        android:background="@drawable/bg_shield_glass"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/layoutStatus"
-        app:layout_constraintBottom_toTopOf="@id/layoutAudioWave"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Outer Glowing Ring -->
-        <View
-            android:id="@+id/viewShieldGlow"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="@drawable/bg_shield_glow"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Core Button -->
-        <ImageButton
-            android:id="@+id/btnShield"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:background="@drawable/bg_shield_button"
-            android:src="@drawable/ic_shield"
-            android:scaleType="centerInside"
-            android:contentDescription="Protective Shield Button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Live Audio Wave Analysis Section (20-bar spectrum visualizer) -->
-    <LinearLayout
-        android:id="@+id/layoutAudioWave"
-        android:layout_width="wrap_content"
-        android:layout_height="72dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@id/cardMetrics"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Wave Bars with multi-layered opacity mapping -->
-        <View android:id="@+id/waveBar1" android:layout_width="3dp" android:layout_height="12dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar2" android:layout_width="3dp" android:layout_height="25dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar3" android:layout_width="3dp" android:layout_height="40dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar4" android:layout_width="3dp" android:layout_height="20dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar5" android:layout_width="3dp" android:layout_height="55dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar6" android:layout_width="3dp" android:layout_height="30dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar7" android:layout_width="3dp" android:layout_height="15dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        
-        <View android:id="@+id/waveBar8" android:layout_width="3dp" android:layout_height="35dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.5" />
-        <View android:id="@+id/waveBar9" android:layout_width="3dp" android:layout_height="50dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.5" />
-        <View android:id="@+id/waveBar10" android:layout_width="3dp" android:layout_height="20dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.5" />
-        
-        <View android:id="@+id/waveBar11" android:layout_width="3dp" android:layout_height="42dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar12" android:layout_width="3dp" android:layout_height="12dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar13" android:layout_width="3dp" android:layout_height="28dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar14" android:layout_width="3dp" android:layout_height="48dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        
-        <View android:id="@+id/waveBar15" android:layout_width="3dp" android:layout_height="18dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.3" />
-        <View android:id="@+id/waveBar16" android:layout_width="3dp" android:layout_height="36dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.3" />
-        <View android:id="@+id/waveBar17" android:layout_width="3dp" android:layout_height="62dp" android:layout_margin="2dp" android:background="@color/mint_green" android:alpha="0.8" />
-        <View android:id="@+id/waveBar18" android:layout_width="3dp" android:layout_height="28dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar19" android:layout_width="3dp" android:layout_height="40dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-        <View android:id="@+id/waveBar20" android:layout_width="3dp" android:layout_height="15dp" android:layout_margin="2dp" android:background="@color/mint_green" />
-
-    </LinearLayout>
-
-    <!-- Bottom Real-time Metrics Card -->
-    <LinearLayout
-        android:id="@+id/cardMetrics"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_metrics_card"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/bg_bottom_nav"
+        android:elevation="12dp"
+        app:itemIconTint="@drawable/nav_icon_color"
+        app:itemTextColor="@drawable/nav_icon_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Scanned Calls -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvMetricCallsVal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1,248"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SCANNED"
-                android:textColor="@color/gray_light"
-                android:alpha="0.6"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
-        <!-- Column separator -->
-        <View
-            android:layout_width="1.2dp"
-            android:layout_height="40dp"
-            android:background="#1F2445"
-            android:layout_gravity="center_vertical" />
-
-        <!-- Threats Blocked -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvMetricThreatsVal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="42"
-                android:textColor="@color/neon_coral"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BLOCKED"
-                android:textColor="@color/neon_coral"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
-        <!-- Column separator -->
-        <View
-            android:layout_width="1.2dp"
-            android:layout_height="40dp"
-            android:background="#1F2445"
-            android:layout_gravity="center_vertical" />
-
-        <!-- System Latency -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tvMetricLatencyVal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="12 ms"
-                android:textColor="@color/mint_green"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LATENCY"
-                android:textColor="@color/mint_green"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#4000C896">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="oval">
-            <solid android:color="#1F2336" />
-            <stroke
-                android:width="3dp"
-                android:color="#00C896" />
-            <size
-                android:width="150dp"
-                android:height="150dp" />
+            <gradient
+                android:type="radial"
+                android:gradientRadius="140dp"
+                android:centerColor="@color/aura_mint_dim"
+                android:endColor="@color/bg_surface" />
+            <stroke android:width="1.5dp" android:color="@color/aura_mint" />
         </shape>
     </item>
-</ripple>
+</layer-list>
