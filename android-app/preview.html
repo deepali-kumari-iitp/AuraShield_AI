@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraShield AI - 5-Screen Compose Preview</title>
+    <style>
+        :root {
+            --midnight-navy: #0B0F26;
+            --midnight-navy-dark: #050818;
+            --mint-green: #00C896;
+            --neon-coral: #FF6B6B;
+            --gray-dark: #1F2336;
+            --gray-light: #E2E8F0;
+            --white: #FFFFFF;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--midnight-navy);
+            color: var(--white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Mock mobile device container wrapper */
+        .device-container {
+            width: 375px;
+            height: 780px;
+            background-color: var(--midnight-navy);
+            border: 10px solid #1c2035;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Device notch */
+        .device-notch {
+            width: 140px;
+            height: 25px;
+            background-color: #1c2035;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 100;
+        }
+
+        /* Screens container */
+        .screen-content {
+            flex-grow: 1;
+            padding: 24px;
+            padding-top: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: calc(100% - 60px);
+            box-sizing: border-box;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* 1. ONBOARDING SCREEN STYLING */
+        .logo-box {
+            width: 110px;
+            height: 110px;
+            background-color: var(--gray-dark);
+            border: 2px solid var(--mint-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px auto 20px;
+            box-shadow: 0 0 20px rgba(0, 200, 150, 0.15);
+        }
+
+        .logo-box svg {
+            width: 50px;
+            height: 50px;
+            fill: var(--mint-green);
+        }
+
+        .brand-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-light);
+            opacity: 0.6;
+            margin: 6px 0 30px;
+        }
+
+        .toggle-card {
+            background-color: var(--gray-dark);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-info {
+            flex: 1;
+            padding-right: 12px;
+        }
+
+        .toggle-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .toggle-desc {
+            font-size: 11px;
+            color: var(--gray-light);
+            opacity: 0.6;
+            line-height: 14px;
+        }
+
+        /* Custom Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--midnight-navy);
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--gray-light);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--mint-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+            background-color: var(--midnight-navy-dark);
+        }
+
+        .action-btn {
+            background-color: var(--mint-green);
+            color: var(--midnight-navy-dark);
+            border: none;
+            border-radius: 14px;
+            height: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: auto;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* 2. ADVANCED DASHBOARD SCREEN */
+        .protected-banner {
+            background-color: var(--mint-green);
+            color: var(--midnight-navy-dark);
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .score-section {
+            margin: 35px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle svg circle.bg {
+            fill: none;
+            stroke: var(--gray-dark);
+            stroke-width: 10;
+        }
+
+        .score-circle svg circle.progress {
+            fill: none;
+            stroke: var(--mint-green);
+            stroke-width: 10;
+            stroke-dasharray: 440;
+            stroke-dashoffset: calc(440 - (440 * 92) / 100);
+            stroke-linecap: round;
+        }
+
+        .score-val {
+            font-size: 40px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: var(--gray-light);
+            opacity: 0.6;
+        }
+
+        .registry-card {
+            background-color: var(--midnight-navy-dark);
+            border: 1px solid #1F2445;
+            border-radius: 18px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .registry-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin: 0 0 4px 0;
+        }
+
+        .registry-desc {
+            font-size: 11px;
+            color: var(--gray-light);
+            opacity: 0.5;
+            margin: 0 0 16px 0;
+        }
+
+        .registry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .registry-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .registry-item svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--mint-green);
+        }
+
+        .registry-item.disabled svg {
+            fill: #555;
+        }
+
+        .item-divider {
+            height: 1px;
+            background-color: var(--gray-dark);
+        }
+
+        /* 3. EDGE LIVE DETECTION SCREEN */
+        .scan-title {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--mint-green);
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .scan-subtitle {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 4px 0 24px 0;
+        }
+
+        .wave-box {
+            width: 100%;
+            height: 200px;
+            background-color: var(--midnight-navy-dark);
+            border: 1.2px solid #1F2445;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .wave-box svg.sine-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tag-loop {
+            background-color: rgba(11, 15, 38, 0.8);
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 10;
+        }
+
+        .info-card {
+            background-color: var(--gray-dark);
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 28px;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .info-header svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--mint-green);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 8px 0;
+        }
+
+        .info-label {
+            color: var(--gray-light);
+            opacity: 0.6;
+        }
+
+        .info-value {
+            color: var(--mint-green);
+            font-weight: 700;
+        }
+
+        /* 4. SYSTEM KILL SWITCH SCREEN */
+        .lock-icon-box {
+            width: 90px;
+            height: 90px;
+            background-color: rgba(255, 107, 107, 0.1);
+            border: 2px solid var(--neon-coral);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 60px auto 24px;
+        }
+
+        .lock-icon-box svg {
+            width: 36px;
+            height: 36px;
+            fill: var(--neon-coral);
+        }
+
+        .lock-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--neon-coral);
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .lock-desc {
+            font-size: 13px;
+            color: var(--gray-light);
+            opacity: 0.7;
+            text-align: center;
+            line-height: 18px;
+            margin: 10px 0 28px 0;
+        }
+
+        .countdown-card {
+            background-color: var(--gray-dark);
+            border-radius: 16px;
+            padding: 18px;
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.5;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown-time {
+            font-size: 36px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .lockdown-btn {
+            background-color: var(--neon-coral);
+            color: var(--white);
+            margin-top: 36px;
+        }
+
+        /* 5. FORENSIC HISTORY SCREEN */
+        .history-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .history-subtitle {
+            font-size: 12px;
+            color: var(--gray-light);
+            opacity: 0.5;
+            margin: 4px 0 20px 0;
+        }
+
+        .logs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .log-card {
+            background-color: var(--gray-dark);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-phone {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: var(--gray-light);
+            opacity: 0.5;
+            margin-top: 2px;
+        }
+
+        .log-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+
+        .log-badge.high {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-color: var(--neon-coral);
+            color: var(--neon-coral);
+        }
+
+        .log-badge.med {
+            background-color: rgba(255, 152, 0, 0.1);
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .log-badge.safe {
+            background-color: rgba(0, 200, 150, 0.1);
+            border-color: var(--mint-green);
+            color: var(--mint-green);
+        }
+
+        /* Expanded Subpanel */
+        .log-expanded {
+            display: none;
+            margin-top: 16px;
+            border-top: 1px solid var(--midnight-navy);
+            padding-top: 14px;
+            text-align: left;
+        }
+
+        .log-card.expanded .log-expanded {
+            display: block;
+        }
+
+        .panel-label {
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0.5;
+            margin-bottom: 6px;
+        }
+
+        .spectrogram-box {
+            width: 100%;
+            height: 80px;
+            background-color: var(--midnight-navy-dark);
+            border-radius: 8px;
+            margin-top: 6px;
+            display: flex;
+            align-items: flex-end;
+            padding: 4px 8px;
+            box-sizing: border-box;
+            gap: 2px;
+        }
+
+        .spec-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--mint-green), #FF9800, var(--neon-coral));
+            border-top-left-radius: 1px;
+            border-top-right-radius: 1px;
+        }
+
+        .panel-text {
+            font-size: 13px;
+            line-height: 18px;
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+
+        /* BOTTOM NAVIGATION BAR */
+        .nav-bar {
+            height: 60px;
+            background-color: var(--midnight-navy-dark);
+            border-top: 1px solid var(--gray-dark);
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .nav-bar.active {
+            display: flex;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(226, 232, 240, 0.5);
+            font-size: 10px;
+            gap: 4px;
+            transition: color 0.2s;
+            height: 100%;
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: var(--mint-green);
+        }
+
+        .nav-item.active.red {
+            color: var(--neon-coral);
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(31, 35, 54, 0.95);
+            border: 1px solid #1F2445;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 200;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="device-container">
+        <div class="device-notch"></div>
+
+        <!-- Dynamic screens wrapper -->
+        <div class="screen-content">
+
+            <!-- 1. Permission Onboarding Screen -->
+            <div class="screen active" id="scr-onboarding">
+                <div class="logo-box">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12,2L4,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5l-9,-3zm0,10.99h7c-0.53,4.12 -3.28,7.79 -7,8.94V13H5V6.3l7,-3.11v9.81z"/>
+                    </svg>
+                </div>
+                <h2 class="brand-title">AURA SHIELD AI</h2>
+                <div class="brand-subtitle">Edge-Based Call Security & Intercept Core</div>
+
+                <!-- Toggle 1 -->
+                <div class="toggle-card">
+                    <div class="toggle-info">
+                        <div class="toggle-title">Live Call Analysis Engine</div>
+                        <div class="toggle-desc">Enables real-time heuristics and voice stream analysis via TFLite models running locally.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tg-engine" checked onchange="showToast('Call Monitoring Engine Active')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Toggle 2 -->
+                <div class="toggle-card">
+                    <div class="toggle-info">
+                        <div class="toggle-title">System Overlay Transaction Shield</div>
+                        <div class="toggle-desc">Draws secure transactional covers during calls to block critical app overlays and UPI hacks.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="tg-overlay" onchange="showToast('Requesting overlay permission settings...')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button class="action-btn" onclick="navigateTo(2)">PROCEED TO CONSOLE</button>
+            </div>
+
+            <!-- 2. Advanced Dashboard Screen -->
+            <div class="screen" id="scr-dashboard">
+                <div class="protected-banner">
+                    <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    YOU ARE PROTECTED
+                </div>
+
+                <div class="score-section">
+                    <div class="score-circle">
+                        <svg>
+                            <circle class="bg" cx="80" cy="80" r="70"></circle>
+                            <circle class="progress" cx="80" cy="80" r="70"></circle>
+                        </svg>
+                        <h2 class="score-val">92%</h2>
+                        <div class="score-label">Protection Score</div>
+                    </div>
+                </div>
+
+                <div class="registry-card">
+                    <h3 class="registry-title">Protected Financial Apps Registry</h3>
+                    <p class="registry-desc">Securing transactions during outgoing/incoming phone sessions.</p>
+
+                    <div class="registry-item">
+                        <div class="registry-label">
+                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            Google Pay (GPay)
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked onchange="toggleRegistry(this, 'GPay')">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="item-divider"></div>
+
+                    <div class="registry-item">
+                        <div class="registry-label">
+                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            PhonePe
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked onchange="toggleRegistry(this, 'PhonePe')">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="item-divider"></div>
+
+                    <div class="registry-item disabled">
+                        <div class="registry-label">
+                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            Paytm
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" onchange="toggleRegistry(this, 'Paytm')">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Edge Live Detection Screen -->
+            <div class="screen" id="scr-detection">
+                <div class="scan-title">ACTIVE SCANNING MODE</div>
+                <div class="scan-subtitle">Analyzing Incoming Stream</div>
+
+                <div class="wave-box">
+                    <svg class="sine-wave" viewBox="0 0 327 200" preserveAspectRatio="none">
+                        <path id="svg-wave1" fill="none" stroke="#00C896" stroke-width="2.5"></path>
+                        <path id="svg-wave2" fill="none" stroke="rgba(0, 200, 150, 0.3)" stroke-width="1.5"></path>
+                    </svg>
+                    <div class="tag-loop">Voice Loop: 500ms</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-header">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Local Inference Statistics
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Local Inference Latency</div>
+                        <div class="info-value">14 ms</div>
+                    </div>
+                    <div class="item-divider"></div>
+                    <div class="info-row">
+                        <div class="info-label">Voice Buffer Window</div>
+                        <div class="info-value">500 ms</div>
+                    </div>
+                    <div class="item-divider"></div>
+                    <div class="info-row">
+                        <div class="info-label">Model Footprint</div>
+                        <div class="info-value">~15 MB (Quantized TFLite)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. System Kill Switch Screen -->
+            <div class="screen" id="scr-lock">
+                <div class="lock-icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H8.9V6z"/></svg>
+                </div>
+                <div class="lock-title">🔒 SYSTEM INTERCEPTED</div>
+                <div class="lock-desc">A suspected clone voice stream matched banking social engineering heuristics. Critical financial transactions have been overlay locked.</div>
+
+                <div class="countdown-card">
+                    <div class="countdown-label">LOCKOUT COUNTDOWN</div>
+                    <div class="countdown-time" id="timerClock">15:00</div>
+                </div>
+
+                <button class="action-btn lockdown-btn" onclick="showToast('Requesting biometric prompt...')">Verify via Biometric Override</button>
+            </div>
+
+            <!-- 5. Forensic History Screen -->
+            <div class="screen" id="scr-history">
+                <div class="history-title">Forensic History Log</div>
+                <div class="history-subtitle">Analysis records of call voice sessions.</div>
+
+                <div class="logs-list">
+                    <!-- Log Row 1 -->
+                    <div class="log-card" onclick="toggleLog(this)">
+                        <div class="log-header">
+                            <div>
+                                <div class="log-phone">+1 (555) 019-2834</div>
+                                <div class="log-time">10 mins ago</div>
+                            </div>
+                            <span class="log-badge high">92% RISK</span>
+                        </div>
+                        <div class="log-expanded">
+                            <div class="panel-label">Analyzed Mel-Spectrogram Layer</div>
+                            <div class="spectrogram-box" id="spec1"></div>
+                            <div class="panel-label" style="margin-top:12px">Classification</div>
+                            <div class="panel-text" style="font-weight:700">AI Voice Clone</div>
+                            <div class="panel-label">Forensic Details Log</div>
+                            <div class="panel-text">Deepfake anomaly identified. Formant shifts match cloned model pattern. Pitch variance threshold exceeded: +12%.</div>
+                        </div>
+                    </div>
+
+                    <!-- Log Row 2 -->
+                    <div class="log-card" onclick="toggleLog(this)">
+                        <div class="log-header">
+                            <div>
+                                <div class="log-phone">+1 (555) 048-1920</div>
+                                <div class="log-time">1 hour ago</div>
+                            </div>
+                            <span class="log-badge med">45% RISK</span>
+                        </div>
+                        <div class="log-expanded">
+                            <div class="panel-label">Analyzed Mel-Spectrogram Layer</div>
+                            <div class="spectrogram-box" id="spec2"></div>
+                            <div class="panel-label" style="margin-top:12px">Classification</div>
+                            <div class="panel-text" style="font-weight:700">Pitch Variance</div>
+                            <div class="panel-label">Forensic Details Log</div>
+                            <div class="panel-text">Suspect pitch variance detected. Voice features altered from native benchmark values.</div>
+                        </div>
+                    </div>
+
+                    <!-- Log Row 3 -->
+                    <div class="log-card" onclick="toggleLog(this)">
+                        <div class="log-header">
+                            <div>
+                                <div class="log-phone">+1 (555) 012-7384</div>
+                                <div class="log-time">3 hours ago</div>
+                            </div>
+                            <span class="log-badge safe">2% RISK</span>
+                        </div>
+                        <div class="log-expanded">
+                            <div class="panel-label">Analyzed Mel-Spectrogram Layer</div>
+                            <div class="spectrogram-box" id="spec3"></div>
+                            <div class="panel-label" style="margin-top:12px">Classification</div>
+                            <div class="panel-text" style="font-weight:700">Safe Contact</div>
+                            <div class="panel-label">Forensic Details Log</div>
+                            <div class="panel-text">Acoustics matching authenticated native signature profile. Safe channel established.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Toast element -->
+        <div class="toast" id="toastBox">Toast Message</div>
+
+        <!-- Bottom navigation bar -->
+        <div class="nav-bar" id="bottomNav">
+            <div class="nav-item active" onclick="navigateTo(2)">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Console
+            </div>
+            <div class="nav-item" onclick="navigateTo(3)">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                Live Monitor
+            </div>
+            <div class="nav-item" onclick="navigateTo(4)">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                System Lock
+            </div>
+            <div class="nav-item" onclick="navigateTo(5)">
+                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                Risk Log
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const screens = [
+            document.getElementById('scr-onboarding'),
+            document.getElementById('scr-dashboard'),
+            document.getElementById('scr-detection'),
+            document.getElementById('scr-lock'),
+            document.getElementById('scr-history')
+        ];
+        const navBar = document.getElementById('bottomNav');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function navigateTo(screenNum) {
+            // Hide onboarding, show navbar on screens 2,3,4,5
+            if (screenNum === 1) {
+                navBar.classList.remove('active');
+            } else {
+                navBar.classList.add('active');
+                // Set active bottom nav item highlights
+                navItems.forEach((item, idx) => {
+                    if (idx === (screenNum - 2)) {
+                        item.classList.add('active');
+                        if (screenNum === 4) { // Lock screen has coral warnings
+                            item.classList.add('red');
+                        } else {
+                            item.classList.remove('red');
+                        }
+                    } else {
+                        item.classList.remove('active');
+                        item.classList.remove('red');
+                    }
+                });
+            }
+
+            screens.forEach((scr, idx) => {
+                if (idx === (screenNum - 1)) {
+                    scr.classList.add('active');
+                } else {
+                    scr.classList.remove('active');
+                }
+            });
+        }
+
+        // Registry toggles
+        function toggleRegistry(cb, name) {
+            const parent = cb.closest('.registry-item');
+            if (cb.checked) {
+                parent.classList.remove('disabled');
+                showToast(name + " Intercept Monitor Active");
+            } else {
+                parent.classList.add('disabled');
+                showToast(name + " Intercept Monitor Disabled");
+            }
+        }
+
+        // Live scrolling waveform logic inside SVG path
+        let animationFrame;
+        let wavePhase = 0;
+        const wave1 = document.getElementById('svg-wave1');
+        const wave2 = document.getElementById('svg-wave2');
+
+        function drawWaves() {
+            if (screens[2].classList.contains('active')) {
+                wavePhase += 0.05;
+                const width = 327;
+                const height = 200;
+                const middle = height / 2;
+
+                let d1 = "M 0 " + middle;
+                let d2 = "M 0 " + middle;
+
+                for (let x = 0; x <= width; x += 5) {
+                    const angle = (x / width) * 4 * Math.PI;
+                    
+                    // Wave 1
+                    const y1 = middle + Math.sin(angle + wavePhase) * 40;
+                    d1 += " L " + x + " " + y1;
+
+                    // Wave 2
+                    const y2 = middle + Math.sin(angle * 1.5 - wavePhase) * 20;
+                    d2 += " L " + x + " " + y2;
+                }
+
+                wave1.setAttribute('d', d1);
+                wave2.setAttribute('d', d2);
+            }
+            requestAnimationFrame(drawWaves);
+        }
+        requestAnimationFrame(drawWaves);
+
+        // Lockdown countdown timer logic
+        let timeLeft = 900; // 15 mins
+        const timerClock = document.getElementById('timerClock');
+
+        setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                const min = Math.floor(timeLeft / 60);
+                const sec = timeLeft % 60;
+                timerClock.innerText = (min < 10 ? '0' : '') + min + ":" + (sec < 10 ? '0' : '') + sec;
+            }
+        }, 1000);
+
+        // Toast message display
+        function showToast(msg) {
+            const toastBox = document.getElementById('toastBox');
+            toastBox.innerText = msg;
+            toastBox.style.display = 'block';
+            setTimeout(() => {
+                toastBox.style.display = 'none';
+            }, 2500);
+        }
+
+        // Lazy column row expanding
+        function toggleLog(card) {
+            const wasExpanded = card.classList.contains('expanded');
+            
+            // Collapse all log cards
+            document.querySelectorAll('.log-card').forEach(c => {
+                c.classList.remove('expanded');
+            });
+
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+                // Draw spectrogram inside card
+                const specContainer = card.querySelector('.spectrogram-box');
+                if (specContainer.innerHTML === "") {
+                    // Populate with mock spectrogram lines
+                    const barCount = 38;
+                    for (let i = 0; i < barCount; i++) {
+                        const h = 20 + Math.sin(i * 0.4) * 40 + Math.random() * 10;
+                        const bar = document.createElement('div');
+                        bar.classList.add('spec-bar');
+                        bar.style.height = Math.max(10, Math.min(70, h)) + "px";
+                        specContainer.appendChild(bar);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

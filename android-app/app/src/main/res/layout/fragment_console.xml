@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="22dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="32dp">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/appTitle"
+            style="@style/Text.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/appSubtitle"
+            style="@style/Text.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/aura_shield_subtitle"
+            app:layout_constraintStart_toStartOf="@id/appTitle"
+            app:layout_constraintTop_toBottomOf="@id/appTitle" />
+
+        <!-- Protected status banner -->
+        <LinearLayout
+            android:id="@+id/statusBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_status_banner_safe"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="14dp"
+            app:layout_constraintTop_toBottomOf="@id/appSubtitle">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_check"
+                app:tint="@color/bg_void" />
+
+            <TextView
+                android:id="@+id/statusBannerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.04"
+                android:text="@string/status_protected"
+                android:textColor="@color/bg_void"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Glowing pulsing shield -->
+        <FrameLayout
+            android:id="@+id/shieldContainer"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="36dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/statusBanner">
+
+            <View
+                android:id="@+id/glowRingOuter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_shield_glow_ring"
+                android:alpha="0.35" />
+
+            <View
+                android:id="@+id/glowRingInner"
+                android:layout_width="170dp"
+                android:layout_height="170dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_shield_glow_ring"
+                android:alpha="0.6" />
+
+            <FrameLayout
+                android:id="@+id/shieldCore"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_shield_button">
+
+                <ImageView
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_shield"
+                    app:tint="@color/aura_mint" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/shieldLabel"
+            style="@style/Text.Heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/aura_shield_active"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/shieldContainer" />
+
+        <!-- Protection score card -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/scoreCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_card"
+            android:padding="22dp"
+            app:layout_constraintTop_toBottomOf="@id/shieldLabel">
+
+            <com.aurashield.ai.widget.CircularProgressView
+                android:id="@+id/protectionRing"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/protectionPercentText"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:gravity="center"
+                android:text="92%"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@id/protectionRing"
+                app:layout_constraintTop_toTopOf="@id/protectionRing"
+                app:layout_constraintBottom_toBottomOf="@id/protectionRing" />
+
+            <TextView
+                android:id="@+id/scoreLabel"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="@string/protection_score_label"
+                app:layout_constraintStart_toEndOf="@id/protectionRing"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/protectionRing" />
+
+            <TextView
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Calibrated against your last 30 days of call activity."
+                app:layout_constraintStart_toStartOf="@id/scoreLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/scoreLabel" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Protected apps registry -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/registryCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:padding="22dp"
+            app:layout_constraintTop_toBottomOf="@id/scoreCard">
+
+            <TextView
+                android:id="@+id/registryTitle"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/registry_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/registrySubtitle"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/registry_subtitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/registryTitle" />
+
+            <LinearLayout
+                android:id="@+id/registryList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/registrySubtitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Core Security Engine Card -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/engineControlCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:padding="22dp"
+            app:layout_constraintTop_toBottomOf="@id/registryCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/engineCardTitle"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Core Security Engine"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/engineCardSubtitle"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Enable background heuristics and system-wide interception."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/engineCardTitle" />
+
+            <!-- Row 1: Live Call Analysis Engine -->
+            <TextView
+                android:id="@+id/engineSwitchLabel"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textSize="15sp"
+                android:text="Live Call Analysis Engine"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/engineSwitch"
+                app:layout_constraintTop_toBottomOf="@id/engineCardSubtitle" />
+
+            <TextView
+                android:id="@+id/engineSwitchDesc"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:text="Performs local AI heuristics and audio feature classification."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/engineSwitch"
+                app:layout_constraintTop_toBottomOf="@id/engineSwitchLabel" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/engineSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/engineSwitchLabel"
+                app:layout_constraintBottom_toBottomOf="@id/engineSwitchDesc" />
+
+            <View
+                android:id="@+id/engineDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:background="@color/bg_stroke"
+                app:layout_constraintTop_toBottomOf="@id/engineSwitchDesc" />
+
+            <!-- Row 2: System Overlay Transaction Shield -->
+            <TextView
+                android:id="@+id/overlaySwitchLabel"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textSize="15sp"
+                android:text="Overlay Transaction Shield"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/overlaySwitch"
+                app:layout_constraintTop_toBottomOf="@id/engineDivider" />
+
+            <TextView
+                android:id="@+id/overlaySwitchDesc"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:text="Draws secure localized intercepts to block payment app hijacks."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/overlaySwitch"
+                app:layout_constraintTop_toBottomOf="@id/overlaySwitchLabel" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/overlaySwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/overlaySwitchLabel"
+                app:layout_constraintBottom_toBottomOf="@id/overlaySwitchDesc" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Simulation Sandbox Card -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/simulationCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_card"
+            android:padding="22dp"
+            app:layout_constraintTop_toBottomOf="@id/engineControlCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/simulationCardTitle"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Simulation Sandbox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/simulationCardSubtitle"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Test edge cases and overlay triggers manually."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/simulationCardTitle" />
+
+            <!-- Row 1: Simulate Voice Attack Trigger -->
+            <TextView
+                android:id="@+id/simulationSwitchLabel"
+                style="@style/Text.Heading"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:textSize="15sp"
+                android:text="Simulate Voice Attack Trigger"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/simulationSwitch"
+                app:layout_constraintTop_toBottomOf="@id/simulationCardSubtitle" />
+
+            <TextView
+                android:id="@+id/simulationSwitchDesc"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:text="Forces a 95% threat risk during an active cellular call."
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/simulationSwitch"
+                app:layout_constraintTop_toBottomOf="@id/simulationSwitchLabel" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/simulationSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/simulationSwitchLabel"
+                app:layout_constraintBottom_toBottomOf="@id/simulationSwitchDesc" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

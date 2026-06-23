@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="22dp"
+    android:paddingTop="28dp">
+
+    <TextView
+        android:id="@+id/scanningModeLabel"
+        style="@style/Text.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/active_scanning_mode"
+        android:textColor="@color/aura_mint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/analyzingTitle"
+        style="@style/Text.Display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/analyzing_stream"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scanningModeLabel" />
+
+    <FrameLayout
+        android:id="@+id/waveformCard"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_marginTop="26dp"
+        android:background="@drawable/bg_card_raised"
+        app:layout_constraintTop_toBottomOf="@id/analyzingTitle">
+
+        <com.aurashield.ai.widget.WaveformView
+            android:id="@+id/waveformView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="14dp" />
+
+        <TextView
+            android:id="@+id/voiceLoopBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_card"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            android:text="Voice Loop: 500ms"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/statsCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_card"
+        android:padding="22dp"
+        app:layout_constraintTop_toBottomOf="@id/waveformCard">
+
+        <ImageView
+            android:id="@+id/statsIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_info"
+            app:tint="@color/aura_mint"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/statsTitle"
+            style="@style/Text.Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/local_inference_stats"
+            app:layout_constraintStart_toEndOf="@id/statsIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/statsIcon"
+            app:layout_constraintBottom_toBottomOf="@id/statsIcon" />
+
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="18dp"
+            android:background="@color/bg_stroke"
+            app:layout_constraintTop_toBottomOf="@id/statsIcon" />
+
+        <TextView
+            android:id="@+id/latencyLabel"
+            style="@style/Text.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/inference_latency"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider1"
+            app:layout_constraintEnd_toStartOf="@id/latencyValue" />
+
+        <TextView
+            android:id="@+id/latencyValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="14 ms"
+            android:textColor="@color/aura_mint"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/latencyLabel" />
+
+        <TextView
+            android:id="@+id/bufferLabel"
+            style="@style/Text.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/voice_buffer_window"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/latencyLabel"
+            app:layout_constraintEnd_toStartOf="@id/bufferValue" />
+
+        <TextView
+            android:id="@+id/bufferValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="500 ms"
+            android:textColor="@color/aura_mint"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bufferLabel" />
+
+        <TextView
+            android:id="@+id/footprintLabel"
+            style="@style/Text.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/model_footprint"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bufferLabel"
+            app:layout_constraintEnd_toStartOf="@id/footprintValue" />
+
+        <TextView
+            android:id="@+id/footprintValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="~15 MB (Quantized TFLite)"
+            android:textColor="@color/aura_mint"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/footprintLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Simulation Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/callSimulationCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_card"
+        android:padding="22dp"
+        app:layout_constraintTop_toBottomOf="@id/statsCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/callSimulationTitle"
+            style="@style/Text.Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Simulate Call Stream"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/callSimulationSwitch"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/callSimulationSubtitle"
+            style="@style/Text.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Simulates active voice connection inputs for testing the GPay overlay blocking trigger."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/callSimulationSwitch"
+            app:layout_constraintTop_toBottomOf="@id/callSimulationTitle" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/callSimulationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

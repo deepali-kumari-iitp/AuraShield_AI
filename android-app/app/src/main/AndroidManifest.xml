@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permissions for Foreground Service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -10,6 +11,25 @@
     
     <!-- Internet Permission for potential remote model downloads or telemetry -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- System Overlay Permission (System Alert Window) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Usage Stats Permission to detect foreground applications -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
+
+    <!-- Phone State Permission to track actual phone calls -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- Call Log Permission to query last incoming call number -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
+    <!-- Package Queries to verify installation of target financial apps -->
+    <queries>
+        <package android:name="com.google.android.apps.nbu.paisa.user" /> <!-- GPay -->
+        <package android:name="com.phonepe.app" /> <!-- PhonePe -->
+        <package android:name="net.one97.paytm" /> <!-- Paytm -->
+    </queries>
 
     <application
         android:name=".AuraShieldApp"
